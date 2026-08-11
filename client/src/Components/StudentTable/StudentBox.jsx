@@ -96,7 +96,6 @@ function StudentBox({ student, onDelete, onSave }) {
     <div className={`
         StudentBox
         ${balance < 0 ? "inDebt" : ""}
-        ${balance === 0 ? "zeroBalance" : ""}
         ${balance > 0 ? "inCredit" : ""}
     `}>
         {isPaying? (
