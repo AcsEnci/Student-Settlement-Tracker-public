@@ -52,6 +52,16 @@ form {
   border-radius: 8px;
 }
 
+.StudentBox.inDebt {
+    background-color: #ffb3b3;
+    border-color: #ff3333;
+}
+
+.StudentBox.inCredit {
+    background-color: #95ffb5;
+    border-color: #11d525;
+}
+
 .days {
   display: flex;
   flex-wrap: wrap;
@@ -137,3 +147,4 @@ button {
 .grow {
   flex: 1;
 }
+

@@ -1,15 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const updateStudent = (student) => {
-    return fetch(`/api/students/${student._id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(student),
-    }).then((res) => res.json());
-  };
+const updateStudent = async (student) => {
+    const res = await fetch(`/api/students/${student._id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(student),
+    });
+
+    if (!res.ok) {
+        throw new Error(`Mentési hiba: ${res.status}`);
+    }
+
+    return res.json();
+};
 
 
 function StudentBox({ student, onDelete, onSave }) {
@@ -29,12 +35,12 @@ function StudentBox({ student, onDelete, onSave }) {
         setIsPaying(false);
     }
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
-        const newPayments = payments;
-        let newBalance = balance;
+        const newPayments = [...payments];
+        let newBalance = Number(balance);
         if (dept) {
-            const price = dept * (-1);
+            const price = Number(dept) * (-1);
             const newPayment = {
                 date: Date.now(),
                 price,
@@ -43,33 +49,39 @@ function StudentBox({ student, onDelete, onSave }) {
             newBalance += price;
         }
         if (payment) {
+            const price = Number(payment);
             const newPayment = {
                 date: Date.now(),
-                price: payment,
+                price,
             }
             newPayments.push(newPayment);
-            newBalance += payment;
+            newBalance += price;
         }
 
-        updateStudent({...student,
-            balance: newBalance,
-            payments: newPayments,
-        })
+        try {
+            await updateStudent({
+                ...student,
+                balance: newBalance,
+                payments: newPayments,
+            });
 
-        setBalance(newBalance);
-        setPayments(newPayments);
-        onSave();
-        goBack();
+            setBalance(newBalance);
+            setPayments(newPayments);
+            onSave();
+            goBack();
+        } catch (error) {
+            console.error("Nem sikerült menteni:", error);
+        }
     }
 
     const addDept = (e) => {
         e.preventDefault();
-        setDept( Number(dept) + student.budget);
+        setDept( Number(dept) + Number(student.budget));
     };
 
     const addPayment = (e) => {
         e.preventDefault();
-        setPayment(Number(payment) + student.budget);
+        setPayment(Number(payment) + Number(student.budget));
     }
 
     if (isDeleting) {
@@ -81,7 +93,12 @@ function StudentBox({ student, onDelete, onSave }) {
     }
 
   return (
-    <div className="StudentBox">
+    <div className={`
+        StudentBox
+        ${balance < 0 ? "inDebt" : ""}
+        ${balance === 0 ? "zeroBalance" : ""}
+        ${balance > 0 ? "inCredit" : ""}
+    `}>
         {isPaying? (
             <div>
                 <h4>{student.name}</h4>
@@ -92,7 +109,7 @@ function StudentBox({ student, onDelete, onSave }) {
                         <input
                         type="number"
                         value={dept}
-                        onChange={(e) => setDept(e.target.value)}
+                        onChange={(e) => setDept(Number(e.target.value))}
                         name="dept"
                         id="dept"
                         />
@@ -103,7 +120,7 @@ function StudentBox({ student, onDelete, onSave }) {
                         <input
                         type="number"
                         value={payment}
-                        onChange={(e) => setPayment(e.target.value)}
+                        onChange={(e) => setPayment(Number(e.target.value))}
                         name="payment"
                         id="payment"
                         />

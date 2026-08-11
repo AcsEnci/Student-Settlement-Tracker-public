@@ -24,19 +24,20 @@ const StudentForm = ({ onSave, disabled, student, onCancel }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
+    const numericBudget = Number(budget);
 
     if (student) {
       return onSave({
         ...student,
         name,
-        budget,
+        budget: numericBudget,
         studyDay: selectedDays,
       });
     }
 
     return onSave({
       name,
-      budget,
+      budget: numericBudget,
       studyDay: selectedDays,
     });
   };
@@ -66,7 +67,7 @@ const StudentForm = ({ onSave, disabled, student, onCancel }) => {
         <input
         type="number"
           value={budget}
-          onChange={(e) => setBudget(e.target.value)}
+          onChange={(e) => setBudget(Number(e.target.value))}
           name="budget"
           id="budget"
         />

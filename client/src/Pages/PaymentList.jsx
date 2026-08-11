@@ -66,8 +66,9 @@ function PaymentList() {
       {canDelete? (
           <button onClick={() => {setIsDeleting(true)}}>Könyvelés törlése</button>
         ):(
-          <button onClick={() => {navigate("/")}}>Vissza</button>
+          <h2>Nem törölhető</h2>
         )}
+        <button onClick={() => {navigate("/")}}>Vissza</button>
         <PaymentTable payments={payments} />
     </div>
   )
